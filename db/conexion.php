@@ -9,6 +9,7 @@
         public  $con;
 
         //wamp 123456, mamp root;
+        //port 3306 por defecto
         function __construct(){
             $this->host = 'localhost';
             $this->user = 'root';

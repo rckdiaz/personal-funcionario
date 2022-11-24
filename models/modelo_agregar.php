@@ -23,12 +23,25 @@
 			}
 	    }
 
+		public function AgregarIMG($rut, $nuevoNombreImg){
+			if(!empty($nuevoNombreImg)){
+				$sql  = "UPDATE 
+                    funcionario 
+                    SET 
+                    foto = '$nuevoNombreImg' where rut = '$rut' ";      
+           		$res  = mysqli_query($this->conexion->con,$sql);
+				
+	        	return $res;
+	        	$this->conexion->con->Cerrar();
+			}
+	    }
+
 		public function AgregarCI($rut, $nuevoNombreCI, $fecha){
 			if(!empty($nuevoNombreCI)){
 				$sql  = "INSERT INTO 
                     archivo (propietario, identificador, nombre, ingreso, enumerador) 
                     VALUES 
-                    ('$rut', 'Cédula de Identidad', '$nuevoNombreCI' ,'$fecha', 1 )";        
+                    ('$rut', 'Cédula de Identidad', '$nuevoNombreCI' ,'$fecha', 1 )";
            		$res  = mysqli_query($this->conexion->con,$sql);
 	        	return $res;
 	        	$this->conexion->con->Cerrar();

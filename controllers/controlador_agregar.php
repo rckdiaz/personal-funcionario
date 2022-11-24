@@ -8,7 +8,6 @@ $rut       = $_POST['id_rut'];
 $nombres   = $_POST['id_nombres'];
 $apellidoP = $_POST['id_apellidoP'];
 $apellidoM = $_POST['id_apellidoM'];
-
 //$dateCI        = $_POST['dateCI'];
 //$dateNac       = $_POST['dateNac'];
 $dateAnt        = $_POST['dateAnt'];
@@ -40,6 +39,15 @@ $MA -> AgregarFuncionario($rut, $nombres, $apellidoP, $apellidoM, $fecha);
 
 $dest      = '../docs';
 $creacion  = mkdir("$dest/$rut/$fecha", 0777, true);
+
+$tmp_img = $_FILES['id_img']['tmp_name'];
+$img     = $_FILES['id_img']['name'];
+$extImg = strtolower(pathinfo($img, PATHINFO_EXTENSION));
+$nuevoNombreImg = $rut.'_Foto.'.$extImg;
+if($img != null){      
+    move_uploaded_file($tmp_img, "$dest/$rut/$nuevoNombreImg");
+    $MA -> AgregarIMG($rut, $nuevoNombreImg); 
+}
 
 $tmp_ci = $_FILES['id_ci']['tmp_name'];
 $ci     = $_FILES['id_ci']['name'];

@@ -47,11 +47,12 @@ const keyupBuscador = () => {
                 const nombres   = data[dato].nombres;
                 const apellidoP = data[dato].apellido_p;
                 const apellidoM = data[dato].apellido_m;
+                const foto = data[dato].foto;
 
                 //console.log(rut, nombres, apellidoP, apellidoM);
                 a.setAttribute('id', data[dato].rut);
                 a.setAttribute('href', '#');
-                a.setAttribute('onclick', `btnClickFunc('${rut}', '${nombres}', '${apellidoP}', '${apellidoM}' )`);
+                a.setAttribute('onclick', `btnClickFunc('${rut}', '${nombres}', '${apellidoP}', '${apellidoM}', '${foto}' )`);
                 a.classList.add('liList', 'list-group-item', 'list-group-item-action');
                 a.appendChild(document.createTextNode(`${nombres} ${apellidoP} ${apellidoM}`));
                 //console.log(a);
@@ -72,8 +73,8 @@ const keyupBuscador = () => {
 }
 
 // Función al seleccionar un funcionario en la lista del buscador //
-const btnClickFunc = ( rut, nombres, apellidoP, apellidoM ) => {
-    //console.log('Hola', rut, nombres, apellidoP, apellidoM);
+const btnClickFunc = ( rut, nombres, apellidoP, apellidoM, foto ) => {
+    console.log('Hola', rut, nombres, apellidoP, apellidoM, foto);
     const url = 'controllers/controlador_traer_funcionario.php';
     let fd = new FormData();
     fd.append('rut', rut);
@@ -111,12 +112,13 @@ const btnClickFunc = ( rut, nombres, apellidoP, apellidoM ) => {
             //divLista.removeChild(divLista.firstChild);
         }
         let htmlCabecera = `
+            <br>
             <div class="row">
                 <div class="col-sm-8 align-self-center">
                     <h1>${nombres} ${apellidoP} ${apellidoM}</h1>
                 </div>
                 <div class="col-sm-4 align-self-center ">
-                    <img src="./assets/img/imagen.jpg" class="rounded float-end" alt="..." height="200" width="200" >
+                    <img src="./docs/${rut}/${foto}" class="rounded float-end" alt="..." height="200" width="200" >
                 </div>
             </div>
             <br>
@@ -130,7 +132,6 @@ const btnClickFunc = ( rut, nombres, apellidoP, apellidoM ) => {
                         <option id="documentosNuevos" class="text-center">Ultimos Documentos</option>
                     </select>
                 </div>
-               
             </div>
             <br>
         `;
@@ -245,9 +246,10 @@ const btnClickFunc = ( rut, nombres, apellidoP, apellidoM ) => {
             })// Fin filtro.forEach //
         })// Fin addEventListener selectPeriodos Función cuando acambie el select de los periodos //
     })// Fin .then //
-}// Fin Función al seleccionar un funcionario en la lista del buscador //
+}
+// Fin Función al seleccionar un funcionario en la lista del buscador //
 
-
+//INICIO AGREGAR UN FUNCIONARIO//
 const btnAgregarFunc = document.querySelector("#guardarFuncionario");
 btnAgregarFunc.addEventListener("click", () => agregar());
 const agregar = async() => {
@@ -255,6 +257,7 @@ const agregar = async() => {
 
     let rut             = document.querySelector('#id_rut').value;
     let nombres         = document.querySelector('#id_nombres').value;
+    let img             = document.querySelector('#id_img').files[0];
     let apellidoP       = document.querySelector('#id_apellidoP').value;
     let apellidoM       = document.querySelector('#id_apellidoM').value;
     let ci              = document.querySelector("#id_ci").files[0];
@@ -289,6 +292,7 @@ const agregar = async() => {
 
     fd.append('id_rut', rut);
     fd.append('id_nombres', nombres);
+    fd.append('id_img', img);
     fd.append('id_apellidoP', apellidoP);
     fd.append('id_apellidoM', apellidoM);
     fd.append("id_ci", ci);
@@ -320,7 +324,8 @@ const agregar = async() => {
     //fd.append('dateCV', dateCV);
     //fd.append('dateAFP', dateAFP);
     //fd.append('dateInstSalud', dateInstSalud);
-    console.log(fd.get('id_ci'));
+    //Saber los datos del archivo q se sube, name, size, type
+    //console.log(fd.get('id_ci'));
 
     const url = 'controllers/controlador_agregar.php';
     await fetch(url, {
@@ -329,8 +334,34 @@ const agregar = async() => {
     })
     //.then(response => response.json())
     .then(datos => {
-        //mostrar imagen
-        console.log(datos);
+        Swal.fire({
+            title: 'Desea agregar al usuario?',
+            showDenyButton: true,
+            showCancelButton: false,
+            confirmButtonText: 'Aceptar',
+            denyButtonText: `Cancelar`,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                //console.log(datos);
+                //console.log('Exitoso el envío de datos.');
+                Swal.fire({
+                    title: 'Agregado correctamente.',
+                    icon: 'success',
+                    showConfirmButton: false,
+                    timer:2000
+                });
+                setTimeout( () => {
+                    //Cerrar Modal
+                    const myModal = document.querySelector('#exampleModal');
+                    const modal = bootstrap.Modal.getInstance(myModal);
+                    modal.hide();
+                }, 2000);
+            } else if (result.isDenied) {
+                console.log('No ha sido exitoso el envío de datos.');
+              Swal.fire('No se ha agregado.', '', 'info')
+            }
+          })
+        
         //  if (datos.resultado == "Ok")
         //     document.getElementById("imagenPerfil")
         //     .setAttribute("src", "docs/"+document.getElementById("foto").files[0].name);       
@@ -339,6 +370,8 @@ const agregar = async() => {
         console.warn('Hubo un error..', err)
     });
 }
+//FIN AGREGAR UN FUNCIONARIO//
+
 // INICIO FUNCIONARIO LOGO //
 const indexFuncionario = document.querySelector('#indexFuncionario');
 indexFuncionario.addEventListener('click', () => {
@@ -347,7 +380,7 @@ indexFuncionario.addEventListener('click', () => {
         container.removeChild(container.firstChild);
     }
 })
-// INICIO FUNCIONARIO LOGO //
+// FIN FUNCIONARIO LOGO //
 
 // FUNCION VALIDAR RUT// 
 // Capturando el DIV alerta y mensaje
@@ -538,6 +571,7 @@ const keyupRut = () => {
     let inputNombre     = document.querySelector('#id_nombres'); 
     let inputApellidoP  = document.querySelector('#id_apellidoP');
     let inputApellidoM  = document.querySelector('#id_apellidoM');
+    let imgPerfil       = document.querySelector('#imagenPerfil');
 
     let mensaje = document.querySelector('#mensaje'); 
     //console.log(inputRut);
@@ -552,22 +586,46 @@ const keyupRut = () => {
         })
         .then(response => response.json())
         .then(data => {
-            console.log({data});
+            console.log('este es el data de la consulta',data);
             inputNombre.value = data[0].nombres;
             inputNombre.setAttribute('disabled', true);
             inputApellidoP.value = data[0].apellido_p;
             inputApellidoP.setAttribute('disabled', true);
             inputApellidoM.value = data[0].apellido_p;
             inputApellidoM.setAttribute('disabled', true);
+            imgPerfil.src = `./docs/${inputRut}/${data[0].foto}`;
         });
-    } else if(document.body.contains(mensaje)){
+    }else if(document.body.contains(mensaje)){
         inputNombre.value = '';
         inputNombre.removeAttribute('disabled');
         inputApellidoP.value = '';
         inputApellidoP.removeAttribute('disabled');
         inputApellidoM.value = '';
         inputApellidoM.removeAttribute('disabled');
+        imgPerfil.src = './assets/img/imagen.jpg';
     }
 }
 // AUTO RELLENAR LOS CAMPOS PARA NO DUPLICAR//
+
+//PREVISUALIZAR UNA IMAGEN AL CARGARLA
+// Obtener referencia al input y a la imagen
+const imgSeleccionada = document.querySelector("#id_img"),
+  $imagenPrevisualizacion = document.querySelector("#imagenPerfil");
+// Escuchar cuando cambie
+imgSeleccionada.addEventListener("change", () => {
+  // Los archivos seleccionados, pueden ser muchos o uno
+  const archivos = imgSeleccionada.files;
+  // Si no hay archivos salimos de la función y quitamos la imagen
+  if (!archivos || !archivos.length) {
+    $imagenPrevisualizacion.src = "";
+    return;
+  }
+  // Ahora tomamos el primer archivo, el cual vamos a previsualizar
+  const primerArchivo = archivos[0];
+  // Lo convertimos a un objeto de tipo objectURL
+  const objectURL = URL.createObjectURL(primerArchivo);
+  // Y a la fuente de la imagen le ponemos el objectURL
+  $imagenPrevisualizacion.src = objectURL;
+});
+//PREVISUALIZAR UNA IMAGEN AL CARGARLA
 
