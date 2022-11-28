@@ -435,17 +435,20 @@ const checkRut = (rut) => {
   dv = dv == "K" ? 10 : dv;
   dv = dv == 0 ? 11 : dv;
   // Validar que el Cuerpo coincide con su Dígito Verificador
+  const inputRut   = document.querySelector('#id_rut');
   if (dvEsperado != dv) {
     rut.setCustomValidity("RUT Inválido");
     alerta.classList.remove('alert-info', 'alert-success');
     alerta.classList.add('alert-danger');
     mensaje.innerHTML = 'El RUT ingresado: ' + rut.value + '<strong> No EXISTE</strong>.';
+    inputRut.setAttribute('rut_valido', false);
     return false;
   } else {
     rut.setCustomValidity("RUT Válido");
     alerta.classList.remove('d-none', 'alert-danger');
     alerta.classList.add('alert-success');
     mensaje.innerHTML = 'El RUT ingresado: ' + rut.value + '<strong id="estadoRut" > Si EXISTE</strong>.';
+    inputRut.setAttribute('rut_valido', true);
     return true;
   }
 }
@@ -464,6 +467,9 @@ const clean = (rut) => {
     : ''
 }
 //FUNCION VALIDAR RUT//
+
+// CAPTURAR EL CAMBIO DE ESTADO SI EL RUT ES VÁLIDO //
+// CAPTURAR EL CAMBIO DE ESTADO SI EL RUT ES VÁLIDO //
 
 // FUNCION ELIMINAR ARCHIVO //
 const eliminarArchivo = (id, propietario, ingreso, nombre, identificador) => {
@@ -545,16 +551,6 @@ function check5(){
 }
 // HABILITAR LOS INPUT DATE //
 
-
-// HABILITAR BOTON AGREGAR FUNCIONARIO //
-// const enableBtnAgregar = document.querySelector('#guardarFuncionario');
-// enableBtnAgregar.addEventListener('change',() => {
-//     let verificar = this.text.length == '' ? true : false;
-//     let inputFechaMilitar = document.getElementById("id_rut"); 
-//     inputFechaMilitar.disabled = verificar;
-// })
-// HABILITAR BOTON AGREGAR FUNCIONARIO //
-
 // ABRIR ARCHIVO PDF //
 const abrirPdf = (propietario, ingreso, nombre) => {
     window.open(`docs/${propietario}/${ingreso}/${nombre}`,"_blank");
@@ -627,5 +623,4 @@ imgSeleccionada.addEventListener("change", () => {
   // Y a la fuente de la imagen le ponemos el objectURL
   $imagenPrevisualizacion.src = objectURL;
 });
-//PREVISUALIZAR UNA IMAGEN AL CARGARLA
-
+//PREVISUALIZAR UNA IMAGEN AL CARGARLA //

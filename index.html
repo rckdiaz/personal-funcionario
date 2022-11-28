@@ -54,7 +54,7 @@
                                 <label style="color:red">*</label>
                                 <label for="id_rut" class="col-form-label">Rut:</label>
                                 <input type="text" class="form-control form-control-sm" id="id_rut" type="text" placeholder="Ingrese un RUT"
-                                    onkeypress="return isNumber(event)" oninput="checkRut(this)">
+                                    onkeypress="return isNumber(event)" oninput="checkRut(this)" rut_valido="false" >
                                     <!-- <label for="id_rut" style="color: red;">Este rut ya está ingresado.</label> -->
                                 </div>
                                 <div class="col col-4">
@@ -213,6 +213,14 @@
         </div>
     </div><!-- Modal -->
 
+    <script type="application/javascript">
+        function getIP(json) {
+          document.write("My public IP address is: ", json.ip);
+          console.log('Mi ip es: ',json.ip);
+        }
+      </script>
+      
+      <script type="application/javascript" src="https://api.ipify.org?format=jsonp&callback=getIP"></script>
 
     <div id="container" class="container">
         <div id="miniContainer" class="miniContainer"></div>
