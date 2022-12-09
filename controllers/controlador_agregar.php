@@ -8,8 +8,8 @@ $rut       = $_POST['id_rut'];
 $nombres   = $_POST['id_nombres'];
 $apellidoP = $_POST['id_apellidoP'];
 $apellidoM = $_POST['id_apellidoM'];
-//$dateCI        = $_POST['dateCI'];
-//$dateNac       = $_POST['dateNac'];
+$dateCI         = $_POST['dateCI'];
+//$dateNac      = $_POST['dateNac'];
 $dateAnt        = $_POST['dateAnt'];
 $dateAntExpEn   = $_POST['dateAntExpEn'];
 $dateEM01       = $_POST['dateEM01'];
@@ -25,6 +25,7 @@ $dateMilExpEn   = $_POST['dateMilExpEn'];
 //$dateCV        = $_POST['dateCV'];
 //$dateAFP       = $_POST['dateAFP'];
 //$dateInstSalud = $_POST['dateInstSalud'];
+$fecha_documentos = $_POST['fecha_documentos'];
 //var_dump($dateCI);
 //var_dump($dateNac);
 //var_dump($dateAnt);
@@ -35,6 +36,10 @@ $dateMilExpEn   = $_POST['dateMilExpEn'];
 //var_dump($dateCV);
 //var_dump($dateAFP);
 //var_dump($dateInstSalud);
+if($fecha_documentos != ''){
+    $fecha = $fecha_documentos;
+}
+
 $MA -> AgregarFuncionario($rut, $nombres, $apellidoP, $apellidoM, $fecha);
 
 $dest      = '../docs';
@@ -55,7 +60,7 @@ $extCI = strtolower(pathinfo($ci, PATHINFO_EXTENSION));
 $nuevoNombreCI = $rut.'_Cédula_de_Identidad.'.$extCI;
 if($ci != null){      
     move_uploaded_file($tmp_ci, "$dest/$rut/$fecha/$nuevoNombreCI");
-    $MA -> AgregarCI($rut, $nuevoNombreCI, $fecha); 
+    $MA -> AgregarCI($rut, $nuevoNombreCI, $fecha, $dateCI); 
 }
 
 $tmp_nac    = $_FILES['id_nacimiento']['tmp_name'];

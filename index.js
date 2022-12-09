@@ -15,7 +15,14 @@
 //     })
 // };
 // mostrarFuncionarios();
-    
+
+// PARA ACTIVAR TOOLTIPS //
+let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+  return new bootstrap.Tooltip(tooltipTriggerEl)
+})
+// PARA ACTIVAR TOOLTIPS //
+
 console.log(moment().locale('es').format('LL'));
 
 const inputBuscador = document.querySelector('#inputBuscador');
@@ -272,7 +279,7 @@ const agregar = async() => {
     let cv              = document.querySelector("#id_cv").files[0];
     let afp             = document.querySelector('#id_afp').files[0];
     let instSalud       = document.querySelector('#id_inst_salud').files[0];
-    //let dateCI        = document.querySelector('#expCI').value;
+    let dateCI          = document.querySelector('#fechaCi').value;
     //let dateNac       = document.querySelector('#expCertNac').value;
     let dateAnt         = document.querySelector('#fechaCertAnt').value;
     let dateAntExpEn    = moment(dateAnt).add(60, 'days').format('YYYY-MM-DD');
@@ -289,6 +296,7 @@ const agregar = async() => {
     //let dateCV        = document.querySelector('#expCV').value;
     //let dateAFP       = document.querySelector('#expAFP').value;
     //let dateInstSalud = document.querySelector('#expInstSalud').value;
+    let fecha_documentos = document.querySelector('#fecha_documentos').value;
 
     fd.append('id_rut', rut);
     fd.append('id_nombres', nombres);
@@ -307,7 +315,7 @@ const agregar = async() => {
     fd.append("id_cv", cv);
     fd.append('id_afp', afp);
     fd.append('id_inst_salud', instSalud);
-    //fd.append('dateCI', dateCI);
+    fd.append('dateCI', dateCI);
     //fd.append('dateNac', dateNac);
     fd.append('dateAnt', dateAnt);
     fd.append('dateAntExpEn', dateAntExpEn);
@@ -326,49 +334,74 @@ const agregar = async() => {
     //fd.append('dateInstSalud', dateInstSalud);
     //Saber los datos del archivo q se sube, name, size, type
     //console.log(fd.get('id_ci'));
-
-    const url = 'controllers/controlador_agregar.php';
-    await fetch(url, {
-        method: 'POST',
-        body: fd
-    })
-    //.then(response => response.json())
-    .then(datos => {
+    fd.append('fecha_documentos' ,fecha_documentos);
+    if (typeof ci !== 'undefined' || 
+        typeof certNac !== 'undefined' || 
+        typeof certAnt !== 'undefined' ||
+        typeof EM01 !== 'undefined' ||
+        typeof EM02 !== 'undefined' ||
+        typeof certEst !== 'undefined' ||
+        typeof certTit !== 'undefined' ||
+        typeof certSalud !== 'undefined' ||
+        typeof sitMilitar !== 'undefined' ||
+        typeof cv !== 'undefined' ||
+        typeof afp !== 'undefined' ||
+        typeof instSalud !== 'undefined' ){ 
+        // Realizar alguna operación 
+        const url = 'controllers/controlador_agregar.php';
+        await fetch(url, {
+            method: 'POST',
+            body: fd
+        })
+        //.then(response => response.json())
+        .then(datos => {
+            Swal.fire({
+                title: 'Desea agregar al usuario?',
+                showDenyButton: true,
+                showCancelButton: false,
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#085ED6',
+                denyButtonText: `Cancelar`,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // console.log(datos);
+                    // console.log('Exitoso el envío de datos.');
+                    // console.log('Abajo esta el ci');
+                    // console.log(ci);
+                    Swal.fire({
+                        title: 'Agregado correctamente.',
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer:2000
+                    });
+                    setTimeout( () => {
+                        //Cerrar Modal
+                        const myModal = document.querySelector('#exampleModal');
+                        const modal = bootstrap.Modal.getInstance(myModal);
+                        modal.hide();
+                        location.reload();
+                    }, 2000);
+                } else if (result.isDenied) {
+                    console.log('No ha sido exitoso el envío de datos.');
+                  Swal.fire('No se ha agregado.', '', 'info')
+                }
+              })
+            
+            //  if (datos.resultado == "Ok")
+            //     document.getElementById("imagenPerfil")
+            //     .setAttribute("src", "docs/"+document.getElementById("foto").files[0].name);       
+        })
+        .catch(err => {
+            console.warn('Hubo un error..', err)
+        });
+    } else {
         Swal.fire({
-            title: 'Desea agregar al usuario?',
-            showDenyButton: true,
-            showCancelButton: false,
-            confirmButtonText: 'Aceptar',
-            denyButtonText: `Cancelar`,
-        }).then((result) => {
-            if (result.isConfirmed) {
-                //console.log(datos);
-                //console.log('Exitoso el envío de datos.');
-                Swal.fire({
-                    title: 'Agregado correctamente.',
-                    icon: 'success',
-                    showConfirmButton: false,
-                    timer:2000
-                });
-                setTimeout( () => {
-                    //Cerrar Modal
-                    const myModal = document.querySelector('#exampleModal');
-                    const modal = bootstrap.Modal.getInstance(myModal);
-                    modal.hide();
-                }, 2000);
-            } else if (result.isDenied) {
-                console.log('No ha sido exitoso el envío de datos.');
-              Swal.fire('No se ha agregado.', '', 'info')
-            }
-          })
-        
-        //  if (datos.resultado == "Ok")
-        //     document.getElementById("imagenPerfil")
-        //     .setAttribute("src", "docs/"+document.getElementById("foto").files[0].name);       
-    })
-    .catch(err => {
-        console.warn('Hubo un error..', err)
-    });
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Tiene que adjuntar algún documento.',
+            confirmButtonColor: '#0B5ED7'
+        })
+    }
 }
 //FIN AGREGAR UN FUNCIONARIO//
 
@@ -410,6 +443,9 @@ const checkRut = (rut) => {
     rut.setCustomValidity("RUT Incompleto");
     alerta.classList.remove('alert-success', 'alert-danger');
     alerta.classList.add('alert-info');
+    const inputRut   = document.querySelector('#id_rut');
+    inputRut.classList.remove('is-invalid');
+    inputRut.classList.remove('is-valid');
     mensaje.innerHTML = 'Ingresó un RUT muy corto, el RUT debe ser mayor a 7 Dígitos. Ej: x.xxx.xxx-x';
     return false;
   }
@@ -442,6 +478,7 @@ const checkRut = (rut) => {
     alerta.classList.add('alert-danger');
     mensaje.innerHTML = 'El RUT ingresado: ' + rut.value + '<strong> No EXISTE</strong>.';
     inputRut.setAttribute('rut_valido', false);
+    inputRut.classList.add('is-invalid');
     return false;
   } else {
     rut.setCustomValidity("RUT Válido");
@@ -449,6 +486,8 @@ const checkRut = (rut) => {
     alerta.classList.add('alert-success');
     mensaje.innerHTML = 'El RUT ingresado: ' + rut.value + '<strong id="estadoRut" > Si EXISTE</strong>.';
     inputRut.setAttribute('rut_valido', true);
+    inputRut.classList.remove('is-invalid');
+    inputRut.classList.add('is-valid');
     return true;
   }
 }
@@ -467,9 +506,6 @@ const clean = (rut) => {
     : ''
 }
 //FUNCION VALIDAR RUT//
-
-// CAPTURAR EL CAMBIO DE ESTADO SI EL RUT ES VÁLIDO //
-// CAPTURAR EL CAMBIO DE ESTADO SI EL RUT ES VÁLIDO //
 
 // FUNCION ELIMINAR ARCHIVO //
 const eliminarArchivo = (id, propietario, ingreso, nombre, identificador) => {
@@ -514,41 +550,125 @@ const eliminarArchivo = (id, propietario, ingreso, nombre, identificador) => {
 // FUNCION ELIMINAR ARCHIVO //
 
 // HABILITAR LOS INPUT DATE //
+const fileCi = document.getElementById("id_ci"); 
+fileCi.addEventListener('change', checkCi); 
+function checkCi(){ 
+    let verificar = this.files.length == 0 ? true : false;   
+    let inputFechaCi = document.getElementById("fechaCi"); 
+    inputFechaCi.disabled = verificar;
+    inputFechaCi.classList.add('is-invalid');
+}
+//VALIDAR QUE ESTÉ BIEN LA FECHA
+const date_ci = document.querySelector('#fechaCi');
+date_ci.addEventListener('change', () => {
+    if(date_ci.value != ''){
+        date_ci.classList.remove('is-invalid');
+        date_ci.classList.add('is-valid');
+    }else{
+        date_ci.classList.remove('is-valid');
+        date_ci.classList.add('is-invalid');
+    }
+})
+
 const fileAntecedentes = document.getElementById("id_antecedentes"); 
 fileAntecedentes.addEventListener('change', check); 
 function check(){ 
     let verificar = this.files.length == 0 ? true : false;   
     let inputFechaCertAnt = document.getElementById("fechaCertAnt"); 
     inputFechaCertAnt.disabled = verificar;
+    inputFechaCertAnt.classList.add('is-invalid');
 }
+//VALIDAR QUE ESTÉ BIEN LA FECHA
+const dateCertAnt = document.querySelector('#fechaCertAnt');
+dateCertAnt.addEventListener('change', () => {
+    if(dateCertAnt.value != ''){
+        dateCertAnt.classList.remove('is-invalid');
+        dateCertAnt.classList.add('is-valid');
+    }else{
+        dateCertAnt.classList.remove('is-valid');
+        dateCertAnt.classList.add('is-invalid');
+    }
+})
+
 const fileEM_01 = document.getElementById("id_EM_01"); 
 fileEM_01.addEventListener('change', check2); 
 function check2(){ 
     let verificar = this.files.length == 0 ? true : false;   
     let inputFechaEM01 = document.getElementById("fechaEM01"); 
     inputFechaEM01.disabled = verificar;
+    inputFechaEM01.classList.add('is-invalid');
 }
+//VALIDAR QUE ESTÉ BIEN LA FECHA
+const date_EM01 = document.querySelector('#fechaEM01');
+date_EM01.addEventListener('change', () => {
+    if(date_EM01.value != ''){
+        date_EM01.classList.remove('is-invalid');
+        date_EM01.classList.add('is-valid');
+    }else{
+        date_EM01.classList.remove('is-valid');
+        date_EM01.classList.add('is-invalid');
+    }
+})
+
 const fileEM_02 = document.getElementById("id_EM_02"); 
 fileEM_02.addEventListener('change', check3); 
 function check3(){ 
     let verificar = this.files.length == 0 ? true : false;   
     let inputFechaEM02 = document.getElementById("fechaEM02"); 
     inputFechaEM02.disabled = verificar;
+    inputFechaEM02.classList.add('is-invalid');
 }
+//VALIDAR QUE ESTÉ BIEN LA FECHA
+const date_EM02 = document.querySelector('#fechaEM02');
+date_EM02.addEventListener('change', () => {
+    if(date_EM02.value != ''){
+        date_EM02.classList.remove('is-invalid');
+        date_EM02.classList.add('is-valid');
+    }else{
+        date_EM02.classList.remove('is-valid');
+        date_EM02.classList.add('is-invalid');
+    }
+})
+
 const fileCert_salud = document.getElementById("id_cert_salud"); 
 fileCert_salud.addEventListener('change', check4); 
 function check4(){ 
     let verificar = this.files.length == 0 ? true : false;   
     let inputFechaCertSalud = document.getElementById("fechaCertSalud"); 
     inputFechaCertSalud.disabled = verificar;
+    inputFechaCertSalud.classList.add('is-invalid');
 }
+//VALIDAR QUE ESTÉ BIEN LA FECHA
+const dateCertSalud = document.querySelector('#fechaCertSalud');
+dateCertSalud.addEventListener('change', () => {
+    if(dateCertSalud.value != ''){
+        dateCertSalud.classList.remove('is-invalid');
+        dateCertSalud.classList.add('is-valid');
+    }else{
+        dateCertSalud.classList.remove('is-valid');
+        dateCertSalud.classList.add('is-invalid');
+    }
+})
+
 const fileMilitar = document.getElementById("id_militar"); 
 fileMilitar.addEventListener('change', check5); 
 function check5(){ 
     let verificar = this.files.length == 0 ? true : false;
     let inputFechaMilitar = document.getElementById("fechaMilitar"); 
     inputFechaMilitar.disabled = verificar;
+    inputFechaMilitar.classList.add('is-invalid');
 }
+//VALIDAR QUE ESTÉ BIEN LA FECHA
+const dateMilitar = document.querySelector('#fechaMilitar');
+dateMilitar.addEventListener('change', () => {
+    if(dateMilitar.value != ''){
+        dateMilitar.classList.remove('is-invalid');
+        dateMilitar.classList.add('is-valid');
+    }else{
+        dateMilitar.classList.remove('is-valid');
+        dateMilitar.classList.add('is-invalid');
+    }
+})
 // HABILITAR LOS INPUT DATE //
 
 // ABRIR ARCHIVO PDF //
@@ -587,7 +707,7 @@ const keyupRut = () => {
             inputNombre.setAttribute('disabled', true);
             inputApellidoP.value = data[0].apellido_p;
             inputApellidoP.setAttribute('disabled', true);
-            inputApellidoM.value = data[0].apellido_p;
+            inputApellidoM.value = data[0].apellido_m;
             inputApellidoM.setAttribute('disabled', true);
             imgPerfil.src = `./docs/${inputRut}/${data[0].foto}`;
         });
@@ -602,6 +722,19 @@ const keyupRut = () => {
     }
 }
 // AUTO RELLENAR LOS CAMPOS PARA NO DUPLICAR//
+
+// HABILITAR & DESHABILITAR EL BOTON AGREGAR FUNCIONARIO //
+const inputRut2 = document.querySelector("#id_rut");
+const button = document.querySelector("#guardarFuncionario");
+button.disabled = true;
+inputRut2.addEventListener("keyup", () => {
+    if ( inputRut2.getAttribute('rut_valido') === "false") {
+        button.disabled = true; 
+      } else {
+        button.disabled = false;
+      }
+});
+// HABILITAR & DESHABILITAR EL BOTON AGREGAR FUNCIONARIO //
 
 //PREVISUALIZAR UNA IMAGEN AL CARGARLA
 // Obtener referencia al input y a la imagen
@@ -624,3 +757,19 @@ imgSeleccionada.addEventListener("change", () => {
   $imagenPrevisualizacion.src = objectURL;
 });
 //PREVISUALIZAR UNA IMAGEN AL CARGARLA //
+
+//HABILITAR LA FECHA AL INGRESAR DOCUMENTOS //
+const switch_fecha = document.querySelector('#switch_fecha_documentos');
+const fecha_documentos = document.querySelector('#fecha_documentos');
+switch_fecha.addEventListener('change', () => {
+    if(switch_fecha.checked){
+        console.log('switch seleccionado');
+        fecha_documentos.removeAttribute('disabled');
+        console.log(fecha_documentos.value);
+    }else if(!switch_fecha.checked){
+        console.log('switch no seleccionado');
+        fecha_documentos.setAttribute('disabled', "");
+        fecha_documentos.value = '';
+    }
+})
+//HABILITAR LA FECHA AL INGRESAR DOCUMENTOS //

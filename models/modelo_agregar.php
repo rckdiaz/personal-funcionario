@@ -36,12 +36,12 @@
 			}
 	    }
 
-		public function AgregarCI($rut, $nuevoNombreCI, $fecha){
+		public function AgregarCI($rut, $nuevoNombreCI, $fecha, $dateCI){
 			if(!empty($nuevoNombreCI)){
 				$sql  = "INSERT INTO 
-                    archivo (propietario, identificador, nombre, ingreso, enumerador) 
+                    archivo (propietario, identificador, nombre, ingreso, enumerador, expira) 
                     VALUES 
-                    ('$rut', 'Cédula de Identidad', '$nuevoNombreCI' ,'$fecha', 1 )";
+                    ('$rut', 'Cédula de Identidad', '$nuevoNombreCI' ,'$fecha', 1, '$dateCI' )";
            		$res  = mysqli_query($this->conexion->con,$sql);
 	        	return $res;
 	        	$this->conexion->con->Cerrar();
